@@ -1,13 +1,18 @@
 module ExactArithmetic.Polynomial
 
 open System
-open System.Linq
 open ExactArithmetic.Rational
 
 (* Polynomial([|a_0 ... a_n|]) = \sum_{i=0}^n a_i X^i *)
 type Polynomial(coefficients: Rational []) =
+    interface IEquatable<Polynomial> with
+            member this.Equals(that: Polynomial) =
+                this.Equals(that)
+                
     static member Constant r = Polynomial.withoutLeadingZero ([| r |])
 
+    static member Zero = Polynomial.Constant Rational.Zero
+    static member One = Polynomial.Constant Rational.One
     static member X =
         Polynomial
             ([| Rational(0, 1)
@@ -16,11 +21,17 @@ type Polynomial(coefficients: Rational []) =
     member this.Coefficients = coefficients
     member private this.indices = seq { 0 .. this.Degree }
     member this.Degree = coefficients.Length - 1
+    member this.IsZero = this.Degree.Equals(-1)
+    member this.IsOne = this.Equals(Polynomial.One)
 
-    member private this.leadingCoefficient =
+    member this.LeadingCoefficient =
         if coefficients.Length > 0 then coefficients.[coefficients.Length - 1]
         else Rational(0, 1)
+    member this.IsConstant = this.Degree.CompareTo(1) < 0
+    member this.AsRational () = if not(this.IsConstant) then raise (ArithmeticException())
+                                else this.LeadingCoefficient
 
+                
     override this.Equals Q =
         match Q with
         | :? Polynomial as Q ->
@@ -80,16 +91,29 @@ type Polynomial(coefficients: Rational []) =
 
     static member Remainder (P: Polynomial, Q: Polynomial) =
         let rec remainder_rec (P: Polynomial) (Q: Polynomial) =
-            if Q.Degree.Equals(0) then raise (DivideByZeroException())
+            if Q.Degree.CompareTo(0) < 0 then raise (DivideByZeroException())
             if P.Degree < Q.Degree then
                 P
             else
-                let factor = (Rational.MultiplicativeInverse Q.leadingCoefficient) * P.leadingCoefficient
+                let factor = (Rational.MultiplicativeInverse Q.LeadingCoefficient) * P.LeadingCoefficient
                 let d = P.Degree - Q.Degree
                 remainder_rec (P - factor * (Polynomial.Power (Polynomial.X, d)) * Q) Q
         remainder_rec P Q
-
+        
     static member (%) (P: Polynomial, Q: Polynomial) = Polynomial.Remainder(P,Q)
+
+    static member DivisionWithRemainder (P: Polynomial, Q: Polynomial) =
+        if Q.Degree.CompareTo(0) < 0 then raise (DivideByZeroException())
+        let rec division_with_remainder (P: Polynomial, Q: Polynomial, old_division_result: Polynomial) =
+            if P.Degree < Q.Degree then
+                P, Q, old_division_result
+            else
+                let factor = (Rational.MultiplicativeInverse Q.LeadingCoefficient) * P.LeadingCoefficient
+                let d = P.Degree - Q.Degree
+                let division_result = factor * (Polynomial.Power (Polynomial.X, d))
+                division_with_remainder (P - division_result * Q, Q, old_division_result + division_result)
+        let remainder, _, division_result = division_with_remainder (P, Q, Polynomial.Zero) in
+        division_result, remainder
     
     override this.ToString() =
         if coefficients.Length = 0 then

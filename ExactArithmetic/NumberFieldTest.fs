@@ -20,6 +20,11 @@ let ``the abstract solution is not zero``() =
     Assert.False(E.Zero.Equals(e))
 
 [<Fact>]
-let ``the abstract solution of an equation as element of a number field is really a solution``() =
+let ``the abstract solution is a solution of the given equation``() =
     let e = E.Solution in  (* e is a solution of the equation 'X^2-2=0' *)
     Assert.Equal(E.Zero, e * e - TwoAsNumberFieldElement)
+
+[<Fact>]
+let ``every non-zero element of E has a multiplicative inverse``() =
+    let someElement = E.Solution + TwoAsNumberFieldElement
+    Assert.Equal (E.One, someElement * someElement.MultiplicativeInverse())

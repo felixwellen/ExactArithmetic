@@ -62,9 +62,9 @@
         <Compile Include="AssemblyInfo.fs" />
         <Content Include="packages.config" />
         <Compile Include="Rational.fs" />
-        <Compile Include="TestRational.fs" />
+        <Compile Include="RationalTest.fs" />
         <Compile Include="Polynomial.fs" />
-        <Compile Include="TestPolynomial.fs" />
+        <Compile Include="PolynomialTest.fs" />
         <Compile Include="NumberField.fs" />
         <Compile Include="NumberFieldTest.fs" />
         <Compile Include="Program.fs" />

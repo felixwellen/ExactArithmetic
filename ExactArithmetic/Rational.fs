@@ -12,22 +12,32 @@ q   down
 
 *)
 
-type Rational(up: BigInteger, down: BigInteger) =
+type Rational(up_unreduced: BigInteger, down_unreduced: BigInteger) =
+  (* the 'let's here are constructor code *)
+  let rec GreatestCommonDivisor a (b: BigInteger) =
+    if b.IsZero then a else
+      GreatestCommonDivisor b (a % b)
+
+  let up_reduced, down_reduced = 
+    if down_unreduced.IsZero then raise (System.DivideByZeroException())
+    let g = GreatestCommonDivisor up_unreduced down_unreduced
+    (up_unreduced / g, down_unreduced / g)
+    
   (* make it possible to write 'Rationl(1,2)' instead of 'Rational(BigInteger(1), BigInteger(2))' *)
   new(i: int, j: int) = Rational(BigInteger(i), BigInteger(j))
-
-  member private this.up = up
-  member private this.down = down
+  new(i: int) = Rational(BigInteger(i), BigInteger(1))  
+  member private this.up = up_reduced
+  member private this.down = down_reduced
 
   override this.ToString() =
-    if down.IsOne then up.ToString() else sprintf "%A/%A" (up.ToString()) (down.ToString())
+    if this.down.IsOne then this.up.ToString() else sprintf "%A/%A" (this.up.ToString()) (this.down.ToString())
 
   override l.Equals r =
     match r with
     | :? Rational as r -> (l.up * r.down).Equals(l.down * r.up)
     | _ -> false
 
-  override this.GetHashCode () = (up.GetHashCode()) + 17 * (down.GetHashCode())
+  override this.GetHashCode () = (this.up.GetHashCode()) + 17 * (this.down.GetHashCode())
   member this.IsZero = this.up.CompareTo(BigInteger(0)).Equals(0)
   member this.IsOne = this.up.CompareTo(BigInteger(1)).Equals(0) && this.down.CompareTo(BigInteger(1)).Equals(0)
 

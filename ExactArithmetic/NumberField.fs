@@ -1,7 +1,7 @@
 module ExactArithmetic.NumberField
 
-open ExactArithmetic
 open System
+open ExactArithmetic
 open ExactArithmetic.Rational
 open ExactArithmetic.Polynomial
 
@@ -17,11 +17,11 @@ type NumberField(modulus: Polynomial) =
     member this.From (r: Rational) = NumberFieldElement(this, Polynomial.Constant(r))
     member this.Solution = NumberFieldElement(this, Polynomial.X)
 
-
-
 and NumberFieldElement(E: NumberField, coefficients: Rational []) =
     new(E: NumberField, P: Polynomial) = NumberFieldElement(E, P.Coefficients)
     member this.AsPolynomial: Polynomial = Polynomial(coefficients)
+    member this.IsZero = this.AsPolynomial.IsZero
+    member this.IsOne = this.AsPolynomial.IsOne
     member this.NumberField: NumberField = E
     static member private returnIfNumberFieldsMatch (x: NumberFieldElement, y: NumberFieldElement,
                                                      returnValue: NumberFieldElement): NumberFieldElement =
@@ -38,7 +38,22 @@ and NumberFieldElement(E: NumberField, coefficients: Rational []) =
     static member (*) (x: NumberFieldElement, y: NumberFieldElement): NumberFieldElement =
         NumberFieldElement.returnIfNumberFieldsMatch
             (x, y, NumberFieldElement(x.NumberField, (x.AsPolynomial * y.AsPolynomial) % x.NumberField.Modulus))
-
+            
+    member this.MultiplicativeInverse () =
+        if this.IsZero then raise (DivideByZeroException()) 
+        else let rec euclid_rec (old_r: Polynomial, r: Polynomial) = (* calculate linear combination of 1 of the successive remainders old_r,r *)
+               let d, new_r = Polynomial.DivisionWithRemainder (old_r, r)
+               if new_r.IsConstant then let f = Polynomial.Constant(Rational.MultiplicativeInverse(new_r.AsRational())) in
+                                        f, Rational(-1) * d * f
+               else let left, right = euclid_rec (r, new_r)   (* left * r + right * new_r = 1 *)
+                    right, left - right * d
+                    
+             NumberFieldElement(this.NumberField,
+                                if this.AsPolynomial.IsConstant then Polynomial.Constant(Rational.MultiplicativeInverse(this.AsPolynomial.AsRational()))
+                                else let _, inverse = euclid_rec (this.NumberField.Modulus, this.AsPolynomial)
+                                     inverse)
+                  
+        
     override this.Equals a =
         match a with
         | :? NumberFieldElement as a -> if not(this.NumberField.Equals(a.NumberField)) then false
