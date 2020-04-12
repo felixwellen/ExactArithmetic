@@ -16,6 +16,9 @@ type NumberField(modulus: Polynomial) =
     member this.One = NumberFieldElement(this, Polynomial.Constant(Rational(1,1)))
     member this.From (r: Rational) = NumberFieldElement(this, Polynomial.Constant(r))
     member this.Solution = NumberFieldElement(this, Polynomial.X)
+    
+    static member Cyclotomic(n: int64) =
+        NumberField(Polynomial.Phi(n))
 
 and NumberFieldElement(E: NumberField, coefficients: Rational []) =
     new(E: NumberField, P: Polynomial) = NumberFieldElement(E, P.Coefficients)
@@ -53,7 +56,15 @@ and NumberFieldElement(E: NumberField, coefficients: Rational []) =
                                 else let _, inverse = euclid_rec (this.NumberField.Modulus, this.AsPolynomial)
                                      inverse)
                   
+
+    static member Power (x: NumberFieldElement, n: int64) =
+        NumberFieldElement(x.NumberField, Polynomial.Power(x.AsPolynomial,n) % x.NumberField.Modulus)
         
+    static member (/) (x: NumberFieldElement, y: NumberFieldElement) =
+        NumberFieldElement.returnIfNumberFieldsMatch
+            (x,y,
+             NumberFieldElement(x.NumberField, (x.AsPolynomial * (y.MultiplicativeInverse().AsPolynomial))))
+            
     override this.Equals a =
         match a with
         | :? NumberFieldElement as a -> if not(this.NumberField.Equals(a.NumberField)) then false
@@ -62,3 +73,5 @@ and NumberFieldElement(E: NumberField, coefficients: Rational []) =
 
     override this.GetHashCode () =
         this.AsPolynomial.GetHashCode()
+
+    

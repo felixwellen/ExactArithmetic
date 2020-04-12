@@ -1,6 +1,8 @@
 module ExactArithmetic.Polynomial
 
 open System
+open System.Collections.Generic
+open ExactArithmetic.Integer
 open ExactArithmetic.Rational
 
 (* Polynomial([|a_0 ... a_n|]) = \sum_{i=0}^n a_i X^i *)
@@ -89,6 +91,18 @@ type Polynomial(coefficients: Rational []) =
                 else P * tmp * tmp
         power_rec P n
 
+    static member Power (P: Polynomial, n: int64) =
+        let rec power_rec P n =
+            if n = 0L then
+                Polynomial.Constant (Rational(1, 1))
+            else if n = 1L then
+                P
+            else
+                let tmp = (power_rec P (n / 2L))
+                if n % 2L = 0L then tmp * tmp
+                else P * tmp * tmp
+        power_rec P n
+        
     static member Remainder (P: Polynomial, Q: Polynomial) =
         let rec remainder_rec (P: Polynomial) (Q: Polynomial) =
             if Q.Degree.CompareTo(0) < 0 then raise (DivideByZeroException())
@@ -115,6 +129,10 @@ type Polynomial(coefficients: Rational []) =
         let remainder, _, division_result = division_with_remainder (P, Q, Polynomial.Zero) in
         division_result, remainder
     
+    static member (/) (P: Polynomial, Q: Polynomial) =
+        let Q,_ = Polynomial.DivisionWithRemainder (P, Q)
+        Q
+        
     override this.ToString() =
         if coefficients.Length = 0 then
             "0"
@@ -134,3 +152,36 @@ type Polynomial(coefficients: Rational []) =
                 Seq.filter (fun ((_, c): int * Rational) -> not (c.IsZero)) coefficients_with_degree
             let summands = Seq.map print_summand non_zero_summands
             Seq.reduce (fun s1 s2 -> s1 + " + " + s2) summands
+
+    (*
+        Computation of the n-th cyclotomic polynomial following
+        
+        https://en.wikipedia.org/wiki/Cyclotomic_polynomial
+    
+    *)
+    static member Phi(n: int64) =
+        Polynomial.memoization
+            (fun n -> 
+                let X = Polynomial.X
+                let One = Polynomial.One
+                match n with
+                | 1L -> X - One
+                | 2L -> X + One
+                | _  -> let divisors = Integer(n).NontrivialDivisors()
+                        List.foldBack (fun d (P: Polynomial) -> let Q,_ = Polynomial.DivisionWithRemainder (P, Polynomial.Phi((int64)d)) in Q)
+                                      divisors
+                                      ((Polynomial.Power(X,n) - Polynomial.One) / (X - One))
+            )
+            n
+                              
+    static member private memoization f =
+        let cache = Dictionary<_,_>()
+        fun c ->
+            let exist, value = cache.TryGetValue (c)
+            match exist with
+            | true -> 
+                value
+            | _ -> 
+                let value = f c
+                cache.Add (c, value)
+                value                              

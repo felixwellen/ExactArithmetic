@@ -61,6 +61,8 @@
     <ItemGroup>
         <Compile Include="AssemblyInfo.fs" />
         <Content Include="packages.config" />
+        <Compile Include="Integer.fs" />
+        <Compile Include="IntegerTest.fs" />
         <Compile Include="Rational.fs" />
         <Compile Include="RationalTest.fs" />
         <Compile Include="Polynomial.fs" />
