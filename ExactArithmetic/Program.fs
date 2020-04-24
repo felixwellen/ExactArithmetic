@@ -1,11 +1,16 @@
 ﻿module ExactArithmetic.Program
 
 open System.Numerics
+open ExactArithmetic.CyclotomicPolynomial
 open ExactArithmetic.Integer
 open ExactArithmetic.Polynomial
 
 [<EntryPoint>]
 let main argv =
-    printfn "Only unit tests so far...\n"
-    Seq.iter (fun n -> printfn "Phi(%d): %A" n (Polynomial.Phi(n).ToString())) (seq { 1L .. 360L })
+    let cyclotomics = CyclotomicPolynomials()
+    Seq.iter
+        (fun n -> let P = cyclotomics.Phi(n) in
+                  if (n % 7L = 0L) then printfn "Phi(%d): %A" n (P.ToString())
+                  else ())
+        (seq { 1L .. 75L })
     0

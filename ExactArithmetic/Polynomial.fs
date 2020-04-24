@@ -1,8 +1,6 @@
 module ExactArithmetic.Polynomial
 
 open System
-open System.Collections.Generic
-open ExactArithmetic.Integer
 open ExactArithmetic.Rational
 
 (* Polynomial([|a_0 ... a_n|]) = \sum_{i=0}^n a_i X^i *)
@@ -153,35 +151,3 @@ type Polynomial(coefficients: Rational []) =
             let summands = Seq.map print_summand non_zero_summands
             Seq.reduce (fun s1 s2 -> s1 + " + " + s2) summands
 
-    (*
-        Computation of the n-th cyclotomic polynomial following
-        
-        https://en.wikipedia.org/wiki/Cyclotomic_polynomial
-    
-    *)
-    static member Phi(n: int64) =
-        Polynomial.memoization
-            (fun n -> 
-                let X = Polynomial.X
-                let One = Polynomial.One
-                match n with
-                | 1L -> X - One
-                | 2L -> X + One
-                | _  -> let divisors = Integer(n).NontrivialDivisors()
-                        List.foldBack (fun d (P: Polynomial) -> let Q,_ = Polynomial.DivisionWithRemainder (P, Polynomial.Phi((int64)d)) in Q)
-                                      divisors
-                                      ((Polynomial.Power(X,n) - Polynomial.One) / (X - One))
-            )
-            n
-                              
-    static member private memoization f =
-        let cache = Dictionary<_,_>()
-        fun c ->
-            let exist, value = cache.TryGetValue (c)
-            match exist with
-            | true -> 
-                value
-            | _ -> 
-                let value = f c
-                cache.Add (c, value)
-                value                              

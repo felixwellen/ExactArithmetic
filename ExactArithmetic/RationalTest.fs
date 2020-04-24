@@ -11,9 +11,9 @@ let ``addition of rationals is correct in a small example``() =
     Assert.Equal(expected_sum, p + q)
     
 [<Fact>]
-let ``fractions are reduced``() =
-    let p = Rational(2, 3)
-    let q = Rational(4, 6)
+let ``reduced fractions have the expected equality of rationals``() =
+    let p = Rational.Reduced(2, 3)
+    let q = Rational.Reduced(4, 6)
     Assert.Equal(p, q)
 
 [<Fact>]

@@ -2,6 +2,7 @@ module ExactArithmetic.NumberField
 
 open System
 open ExactArithmetic
+open ExactArithmetic.CyclotomicPolynomial
 open ExactArithmetic.Rational
 open ExactArithmetic.Polynomial
 
@@ -18,7 +19,8 @@ type NumberField(modulus: Polynomial) =
     member this.Solution = NumberFieldElement(this, Polynomial.X)
     
     static member Cyclotomic(n: int64) =
-        NumberField(Polynomial.Phi(n))
+        let cyclotomics = CyclotomicPolynomials()
+        NumberField(cyclotomics.Phi(n))
 
 and NumberFieldElement(E: NumberField, coefficients: Rational []) =
     new(E: NumberField, P: Polynomial) = NumberFieldElement(E, P.Coefficients)
