@@ -3,7 +3,7 @@ module ExactArithmetic.IntegerTest
 open System
 open System.Numerics
 open Xunit
-open ExactArithmetic.Integer
+open ExactArithmetic.IntegerWithDivisibilityInformation
 
 [<Fact>]
 let ``rounded square root is the exact square root for squares`` () =
@@ -28,14 +28,14 @@ let ``a prime is its own smallest prime divisor`` () =
 [<Fact>]
 let ``a prime has an empty sequence of non-trivial divisors`` () =
     let prime = BigInteger(123457L)
-    Assert.Empty(Integer(prime).NontrivialPrimeDivisors())
+    Assert.Empty(Integer(prime).NontrivialPrimeDivisorsWihtMultiplicities())
 
 [<Fact>]
 let ``products of primes have the primes as non-trivial prime divisors`` () =
     let prime1 = BigInteger(123457L)
     let prime2 = BigInteger(97L)
     
-    let divisors = Integer(prime1 * prime2).NontrivialPrimeDivisors()
+    let divisors = Integer(prime1 * prime2).NontrivialPrimeDivisorsWihtMultiplicities()
     
     Assert.Contains(prime1, divisors)
     Assert.Contains(prime2, divisors)
@@ -58,7 +58,7 @@ let ``prime powers times a prime has the expected sequence of non-trivial prime 
     let prime2 = BigInteger(97L)
     
     let number = prime2 * prime2 * prime1
-    let divisors = Integer(number).NontrivialPrimeDivisors()
+    let divisors = Integer(number).NontrivialPrimeDivisorsWihtMultiplicities()
     
     Assert.Contains(prime1, divisors)
     Assert.Contains(prime2, divisors)

@@ -2,7 +2,7 @@ module ExactArithmetic.CyclotomicPolynomial
 
 open System.Collections.Generic
 open ExactArithmetic
-open ExactArithmetic.Integer
+open ExactArithmetic.IntegerWithDivisibilityInformation
 open ExactArithmetic.Polynomial
 
 type CyclotomicPolynomials() =
@@ -29,10 +29,11 @@ type CyclotomicPolynomials() =
             else
                 let polynomial =
                     let divisors = Integer(n).NontrivialDivisors()
-                    List.foldBack (fun d (P: Polynomial) -> let Q,_ = Polynomial.DivisionWithRemainder (P, this.Phi((int64)d)) in Q)
-                                  divisors
-                                  ((Polynomial.Power(X,n) - Polynomial.One) / (X - One))
+                    if divisors.IsEmpty then Polynomial.GeometricSeries((int)n)
+                    else 
+                        let cyclotomicsForDivisors = Seq.map (fun d -> this.Phi((int64)d)) divisors
+                        let D = Seq.reduce (*) cyclotomicsForDivisors
+                        (Polynomial.GeometricSeries((int)n)) / D
                 in
                 known.Add(n, polynomial)
                 polynomial
-                              

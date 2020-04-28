@@ -68,3 +68,8 @@ let ``'DivisionWithRemainder' yields the expected decomposition``() =
     let Q = Polynomial([|Rational(1,5);Rational(-3,7)|]) in
     let result, remainder = Polynomial.DivisionWithRemainder (P,Q) in
     Assert.True(P.Equals(result * Q + remainder))
+    
+[<Fact>]
+let ``Test Geometric Series`` () =
+    let G = Polynomial.GeometricSeries(25)
+    Assert.Equal(Polynomial.X.Power(25) - Polynomial.One, G * (Polynomial.X - Polynomial.One))

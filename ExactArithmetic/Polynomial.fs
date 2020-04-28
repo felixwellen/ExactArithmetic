@@ -101,6 +101,12 @@ type Polynomial(coefficients: Rational []) =
                 else P * tmp * tmp
         power_rec P n
         
+    member this.Power(n: int64) =
+        Polynomial.Power(this,n)
+        
+    member this.Power(n: int) =
+        Polynomial.Power(this,n)
+        
     static member Remainder (P: Polynomial, Q: Polynomial) =
         let rec remainder_rec (P: Polynomial) (Q: Polynomial) =
             if Q.Degree.CompareTo(0) < 0 then raise (DivideByZeroException())
@@ -151,3 +157,15 @@ type Polynomial(coefficients: Rational []) =
             let summands = Seq.map print_summand non_zero_summands
             Seq.reduce (fun s1 s2 -> s1 + " + " + s2) summands
 
+    (*
+        Finite segments of the geometric series, i.e.
+        
+        G(n) := X^(n-1) + ... + 1
+        
+        which has the property
+        
+        (X^n - 1) = (X - 1) G(n)
+    *)
+    static member GeometricSeries(n: int) =
+        Polynomial(Array.replicate n Rational.One)
+        

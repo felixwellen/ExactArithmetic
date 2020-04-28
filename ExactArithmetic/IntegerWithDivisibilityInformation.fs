@@ -1,4 +1,4 @@
-module ExactArithmetic.Integer
+module ExactArithmetic.IntegerWithDivisibilityInformation
 
 open System
 open System
@@ -31,7 +31,7 @@ type Integer(n : BigInteger) =
                 else smallest_prime_divisor (Seq.filter (fun (l: int64) -> not(l % candidate = 0L)) remainingCandidates)
         smallest_prime_divisor (this.CandidatesForDivisors ())
         
-    member this.NontrivialPrimeDivisors () =
+    member this.NontrivialPrimeDivisorsWihtMultiplicities () =
         let rec nontrivial_divisors (N: BigInteger) = 
             if N.IsOne then List.empty
             else 
@@ -42,7 +42,7 @@ type Integer(n : BigInteger) =
         nontrivial_divisors (this.AsBigInteger)
 
     member this.NontrivialDivisors () =
-        let primeDivisors = this.NontrivialPrimeDivisors ()
+        let primeDivisors = this.NontrivialPrimeDivisorsWihtMultiplicities ()
         let numberOfPrimeDivisors = primeDivisors.Length
         let nontrivial (subsequence: BigInteger list) = not(subsequence.Length = 0) && not(subsequence.Length = numberOfPrimeDivisors)
         List.distinct (List.map (fun primeDivisorSelection -> List.foldBack (*) primeDivisorSelection (BigInteger(1)))
