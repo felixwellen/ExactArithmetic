@@ -1,8 +1,6 @@
 module ExactArithmetic.IntegerWithDivisibilityInformation
 
 open System
-open System
-open System.Collections
 open System.Numerics
 
 (* Extends the Integers given by 'BigInteger' by some operations *)

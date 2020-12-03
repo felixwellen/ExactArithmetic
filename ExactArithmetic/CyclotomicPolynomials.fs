@@ -20,7 +20,6 @@ type CyclotomicPolynomials() =
         Computation of the n-th cyclotomic polynomial following
         
         https://en.wikipedia.org/wiki/Cyclotomic_polynomial
-    
     *)
     member this.Phi(n: int64) =
             let isKnown, maybePolynomial = known.TryGetValue (n)

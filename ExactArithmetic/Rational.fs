@@ -12,8 +12,7 @@ q   down
 
 *)
 
-        
-[<Struct>]        
+[<Struct>]
 type Rational(up: BigInteger, down: BigInteger) =
     static member Reduced(i: int, j: int) = Rational.Reduced(BigInteger(i), BigInteger(j))
     static member Reduced(up_unreduced: BigInteger, down_unreduced: BigInteger) =
@@ -44,7 +43,8 @@ type Rational(up: BigInteger, down: BigInteger) =
     static member One = Rational(BigInteger(1), BigInteger(1))
 
     static member MultiplicativeInverse(r: Rational) =
-        if r = Rational(BigInteger(0), BigInteger(1)) then invalidArg "r" "0"
+        if r = Rational(BigInteger(0), BigInteger(1))
+        then invalidArg "r" "0"
         else Rational.Reduced(r.Down, r.Up)
 
     static member (+) (l: Rational, r: Rational) = Rational.Reduced(l.Up * r.Down + r.Up * l.Down, l.Down * r.Down)

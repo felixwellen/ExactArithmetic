@@ -66,7 +66,7 @@ let ``prime powers times a prime has the expected sequence of non-trivial prime 
     Assert.Equal(3, divisors.Length)
 
 [<Fact>]
-let ``non-trivial divisors are the ones we learnt in school`` () =
+let ``non-trivial divisors of 12 are the ones we learnt in school`` () =
     let someNumber = Integer(12L)
     
     let divisors = someNumber.NontrivialDivisors()
